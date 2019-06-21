@@ -1,0 +1,40 @@
+{
+  "name": "live",
+  "description": "aidah websocket client library",
+  "version": "1.0.0",
+  "main": "server.js",
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "^5.12.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-plumber": "^1.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://nativeB@bitbucket.org/nativeB/custom-livechat.git"
+  },
+  "keywords": [
+    "chat",
+    "plugin"
+  ],
+  "author": "quincy hutchison",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/nativeB/custom-livechat#readme",
+  "dependencies": {
+    "del": "^3.0.0",
+    "gulp-minify": "^3.1.0",
+    "gulp-webpack": "^1.5.0",
+    "ultron": "^1.1.1"
+  },
+  "scripts": {
+    "start-dev": "gulp watch"
+  }
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script src="./dist/live.js" type="text/javascript"></script>
+<script >
+  let Aidah = new AidahLive('5d06ee12f0478037307feba1',{retries:5})
+  Aidah.logging=true
+    Aidah.connection.bind('state_change',(val)=>{
+        console.log('state is changing',val)
+    })
+    Aidah.bind('hello',(val)=>{
+        console.log(val)
+    })
+  Aidah.connection.bind('subscription:succeeded',(val)=>{
+        console.log(val)
+    })
+  let channel = Aidah.subscribe('channeltest')
+    channel.connection.bind('bind:succeeded',(e)=>{
+        console.log(e)
+    })
+  channel.connection.bind('unbind:success',(e)=>{
+        console.log(e)
+    })
+    channel.bind('heybro',(val)=>{
+        channel.unbind('heybro')
+
+        setTimeout(function () {
+            channel.bind('heybro', (val) => {
+                console.log('got',val)
+            })
+        },5000)
+        console.log('this is from channel test','event heybro','val:',val)
+    })
+
+  setTimeout(function () {
+      Aidah.unbind('hello')
+  },10000)
+</script>
+</body>
+</html>
