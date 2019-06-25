@@ -1,2 +1,2 @@
-# live client
-
+# live
+aidahbot ws client library
