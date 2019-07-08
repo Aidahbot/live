@@ -71,7 +71,7 @@ task('jsmin', function () {
     .pipe(dest('./dist/'));
 });
 
-task('clean', function () { return del(['dist']); });
+task('clean', function () { return del(['./dist']); });
 
 task('default', series('clean', 'js', 'jsmin'));
 
