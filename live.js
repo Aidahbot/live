@@ -16,7 +16,7 @@ class stream {
     this.events = [];
     this.channels = {};
     this.baseEvents = [];
-    this.boundList = [];
+    this.trackBinding = [];
     this.toBeBoundList = [];
     this.connected = false;
     this.retries = retries <= 10 ? retries : 10;
@@ -37,7 +37,12 @@ class stream {
     this.socket.onopen = () => {
         this.state = 'connected';
         this.connected = true;
-        this.continueBindingEvents();
+        if (this.retriesCount === 0) {
+            this.continueBindingEvents();
+        } else {
+            this.retriesCount = 0;
+            this.continueBindingEvents(...this.trackBinding);
+        }
         this.triggerBase('state_change', this.state);
     };
     this.socket.onclose = () => {
@@ -114,8 +119,9 @@ class stream {
   }
   continueBindingEvents () {
     this.log('continue binding...');
-    for (let i = 0; i < this.toBeBoundList.length; i++) {
-      this.socket.send(this.toBeBoundList[i]);
+    const bounding = arguments.length > 0 ? arguments : this.toBeBoundList;
+    for (let i = 0; i < bounding.length; i++) {
+      this.socket.send(bounding[i]);
     }
   }
 
@@ -132,11 +138,11 @@ class stream {
 
       this.log('binding to event: ', event);
       ultron.on(this.eventName(event), cb);
+      this.trackBinding.push(stream.beforeSend(evt));
       if (!this.connected) {
         this.log('waiting for connected event before binding: ', event);
         return this.toBeBoundList.push(stream.beforeSend(evt));
       }
-
       this.socket.send(stream.beforeSend(evt));
     } catch (e) {
       this.logError(e.message);
@@ -170,6 +176,8 @@ class stream {
 
       this.log('binding to channel event: ', channel, event);
       ultron.on(this.channelEventsName(channel, event), cb);
+
+      this.trackBinding.push(stream.beforeSend(evt));
       if (!this.connected) {
         this.log('waiting for connected event before binding: ', channel, event);
         return this.toBeBoundList.push(stream.beforeSend(evt));
@@ -191,11 +199,12 @@ class stream {
       if (!this.channels[channel]) { this.channels[channel] = []; }
 
       this.log('subscribing to channel: ', channel);
+
+      this.trackBinding.push(stream.beforeSend(evt));
       if (!this.connected) {
         this.log('waiting for connected event before subscribing: ', channel);
         return this.toBeBoundList.push(stream.beforeSend(evt));
       }
-
       this.socket.send(stream.beforeSend(evt));
 
       return true;
@@ -218,6 +227,7 @@ class stream {
             };
             this.log('Unbind  from  event:  ', channel, event);
             ultron.remove(this.channelEventsName(channel, event));
+            this.trackBinding.push(stream.beforeSend(evt));
             if (!this.connected) {
                 this.log('waiting for connected event before unbinding: ', channel, event);
                 return this.toBeBoundList.push(stream.beforeSend(evt));
@@ -240,6 +250,7 @@ class stream {
           };
           this.log('Unbinding from event: ', eventName);
           ultron.remove(this.eventName(eventName));
+          this.trackBinding.push(stream.beforeSend(evt));
           if (!this.connected) {
               this.log('waiting for connected event before unbinding: ', eventName);
               return this.toBeBoundList.push(stream.beforeSend(evt));
@@ -259,6 +270,8 @@ class stream {
             type: 'unsubscribe',
               channel: channel
           };
+
+      this.trackBinding.push(stream.beforeSend(evt));
       if (!this.connected) {
           this.log('waiting for connected event before unsubscribing: ', channel);
           return this.toBeBoundList.push(stream.beforeSend(evt));
