@@ -103,7 +103,6 @@
 	        this.logError('error in connection', e);
 	    };
 	    this.socket.onmessage = (e) => {
-	        console.log('ws instance', this.socket);
 	        this.messageEngine(e.data);
 	    };
 	}
